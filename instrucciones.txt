@@ -1,0 +1,51 @@
+
+Sigue estos **5 pasos** en orden estricto:
+
+### Paso 1: Verificación de Librerías
+
+Antes de darle al botón de "Play", asegúrate de que tu computadora tenga las herramientas necesarias. Abre la terminal en VS Code y pega esto:
+
+```bash
+pip install fastapi uvicorn sqlalchemy pymysql python-dotenv cryptography
+
+```
+
+### Paso 2: El archivo secreto `.env`
+
+Verifica que en la carpeta raíz (fuera de `app`) tengas el archivo llamado exactamente `.env`. Debe verse así:
+
+```text
+DATABASE_URL=mysql+pymysql://avnadmin:tu_password@tu_host_aiven:puerto/defaultdb
+
+```
+
+> **Nota:** Si no tienes este archivo o la URL está mal, el programa se cerrará apenas intentes abrirlo.
+
+### Paso 3: Encender el Servidor
+
+En la misma terminal de VS Code, escribe el comando para arrancar la API:
+
+```bash
+uvicorn app.main:app --reload
+
+```
+
+**¿Cómo saber si funcionó?**
+
+* Si sale una línea que dice `Uvicorn running on http://127.0.0.1:8000`, **estás ganando**.
+* Si sale un error rojo, lee la última línea; probablemente sea un error de escritura en la URL de la base de datos.
+
+### Paso 4: La Prueba de Fuego (Swagger UI)
+
+No cierres la terminal. Abre tu navegador (Chrome o Edge) y entra a esta dirección:
+👉 **[http://127.0.0.1:8000/docs](https://www.google.com/search?q=http://127.0.0.1:8000/docs)**
+
+Verás una página con los nombres de tus compañeros (**Socios, Transacciones, Préstamos**).
+
+### Paso 5: Prueba de flujo completo (Evidencia para el Word)
+
+Haz estas tres cosas en orden dentro de la web de pruebas:
+
+1. **Registrar un socio:** Entra a `/socios/registrar`, dale a "Try it out", pon tu nombre y dale a "Execute".
+2. **Verificar cuenta:** El sistema te devolverá un `socio_id` (anótalo, suele ser 1).
+3. **Hacer un depósito:** Entra a `/transacciones/operacion`, pon el `cuenta_id: 1`, `tipo: deposito`, `monto: 50.00` y dale a "Execute".
