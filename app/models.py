@@ -1,17 +1,16 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
-from sqlalchemy.sql import func
+
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, text
 from sqlalchemy.orm import relationship
-from database import Base
+from .database import Base
 
 class Socio(Base):
     __tablename__ = "socios"
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100))
     cedula = Column(String(10), unique=True)
-    
-    # NUEVO: Relación para ver sus cuentas y préstamos fácilmente
-    cuentas = relationship("Cuenta", back_populates="titular")
-    prestamos = relationship("Prestamo", back_populates="socio")
+
+    cuentas = relationship("Cuenta", back_populates="titular", cascade="all, delete-orphan")
+    prestamos = relationship("Prestamo", back_populates="socio", cascade="all, delete-orphan")
 
 class Cuenta(Base):
     __tablename__ = "cuentas"
@@ -19,20 +18,19 @@ class Cuenta(Base):
     numero_cuenta = Column(String(20), unique=True)
     saldo = Column(Float, default=0.0)
     socio_id = Column(Integer, ForeignKey("socios.id"))
-    
-    # NUEVO: Relaciones
+
     titular = relationship("Socio", back_populates="cuentas")
-    transacciones = relationship("Transaccion", back_populates="cuenta")
+    transacciones = relationship("Transaccion", back_populates="cuenta", cascade="all, delete-orphan")
 
 class Transaccion(Base):
     __tablename__ = "transacciones"
     id = Column(Integer, primary_key=True, index=True)
-    tipo = Column(String(20)) # DEPOSITO o RETIRO
+    tipo = Column(String(20))  # DEPOSITO o RETIRO
     monto = Column(Float)
-    fecha = Column(DateTime(timezone=True), server_default=func.now())
+    # Portátil para SQLite: CURRENT_TIMESTAMP
+    fecha = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
     cuenta_id = Column(Integer, ForeignKey("cuentas.id"))
-    
-    # NUEVO: Relación con la cuenta
+
     cuenta = relationship("Cuenta", back_populates="transacciones")
 
 class Prestamo(Base):
@@ -41,6 +39,6 @@ class Prestamo(Base):
     monto_aprobado = Column(Float)
     cuotas = Column(Integer)
     socio_id = Column(Integer, ForeignKey("socios.id"))
-    
-    # NUEVO: Relación con el socio
+
     socio = relationship("Socio", back_populates="prestamos")
+
