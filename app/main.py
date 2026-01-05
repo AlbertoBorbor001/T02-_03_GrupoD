@@ -1,41 +1,45 @@
-import pymysql
-pymysql.install_as_MySQLdb()
+
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from database import engine, SessionLocal, Base, get_db
-import models
-from modulos import socios, transacciones, prestamos
+from .database import engine, get_db, DATABASE_URL
+from . import models
+from .modulos import socios, transacciones, prestamos
 import logging
 
-# Configuración de Auditoría (Logging)
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# --- CONFIGURACIÓN DE LOGGING (AUDITORÍA) ---
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger("app.main")
 
-app = FastAPI(title="Sistema Caja de Ahorros - Grupo D (Versión Robusta)")
+app = FastAPI(title="Sistema Caja de Ahorros - Grupo D (SQLite Edition)")
 
-# Crea las tablas automáticamente
+# Crear tablas automáticamente al iniciar
 models.Base.metadata.create_all(bind=engine)
 
-# Rutas de los módulos
+# Registrar Módulos del Sistema
 app.include_router(socios.router)
 app.include_router(transacciones.router)
 app.include_router(prestamos.router)
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info(">>> SISTEMA INICIADO: Conexión con Aiven verificada.")
+    logger.info(">>> SISTEMA INICIADO: Conexión con SQLite verificada.")
+    logger.info(f">>> DATABASE_URL: {DATABASE_URL}")
 
 @app.get("/")
 def inicio():
-    return {"mensaje": "API Grupo D Online y Operativa"}
+    return {"mensaje": "API Grupo D Online y Operativa (SQLite)"}
 
 @app.get("/salud", tags=["Mantenimiento"])
 def verificar_salud(db: Session = Depends(get_db)):
-    """Ruta para verificar que la base de datos en la nube está activa."""
+    """Verifica si la base de datos SQLite responde correctamente"""
     try:
         db.execute(text("SELECT 1")) 
-        return {"status": "online", "database": "Conectado a Aiven MySQL"}
+        return {"status": "online", "database": "Conectado a SQLite"}
     except Exception as e:
-        print(f"Error de conexión: {e}") 
+        logger.error(f"Error de conexión con SQLite: {e}")
         return {"status": "error", "detalle": str(e)}
+        
