@@ -22,3 +22,11 @@ Permite la administración de socios, cuentas, transacciones bancarias y cálcul
 * FastAPI
 * MySQL (SQLAlchemy)
 * Uvicorn
+
+
+#Pruebas Unitarias y Calidad
+Se han implementado pruebas en la carpeta `/tests`:
+- **Unittest/Mock**: Validación de lógica y simulación de DB.
+- **Pytest**: Pruebas de validación de entradas.
+- **Doctest**: Documentación técnica ejecutable.
+- **Coverage**: Reporte de cobertura de código incluido en el informe.
